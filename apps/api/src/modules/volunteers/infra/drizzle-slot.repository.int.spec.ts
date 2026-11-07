@@ -88,6 +88,25 @@ describe('DrizzleSlotRepository (in-memory PGlite, migrations applied)', () => {
     ]);
   });
 
+  it('001-AS6: reports the remaining places written by the store when two registrations succeed together', async () => {
+    const slot = newSlot();
+    await repository.insert(slot);
+    // Deux copies lues avant toute inscription : chacune croit qu'il reste 2 places.
+    const first = await repository.findById(slot.id);
+    const second = await repository.findById(slot.id);
+    if (!first || !second) throw new Error('slot not stored');
+
+    const afterAwa = await repository.addRegistration(first, first.register(volunteer('Awa')));
+    const afterMoussa = await repository.addRegistration(
+      second,
+      second.register(volunteer('Moussa')),
+    );
+
+    expect(afterAwa.remainingPlaces).toBe(1);
+    expect(afterMoussa.remainingPlaces).toBe(0);
+    expect(afterMoussa.registeredCount).toBe(2);
+  });
+
   it('001-AS7: the database refuses a registered count above capacity', async () => {
     const slot = newSlot();
     await repository.insert(slot);

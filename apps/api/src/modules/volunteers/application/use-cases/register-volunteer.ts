@@ -26,7 +26,8 @@ export class RegisterVolunteer {
       email: input.email,
       now: new Date(),
     });
-    await this.slots.addRegistration(slot, registration);
-    return { registration, slot };
+    // Le créneau écrit, et non `slot` lu avant : une autre inscription a pu passer entre-temps.
+    const written = await this.slots.addRegistration(slot, registration);
+    return { registration, slot: written };
   }
 }

@@ -88,6 +88,19 @@ describe('volunteers (application layer)', () => {
     expect(result.slot.remainingPlaces).toBe(0);
   });
 
+  it('001-AS6: reports the remaining places written by the store when two registrations succeed together', async () => {
+    const { openSlot, registerVolunteer } = setup();
+    const slot = await openSlot.execute(lutteMorning);
+
+    // Les deux lectures du créneau ont lieu avant la première écriture.
+    const [first, second] = await Promise.all([
+      registerVolunteer.execute(slot.id, awa),
+      registerVolunteer.execute(slot.id, moussa),
+    ]);
+
+    expect([first.slot.remainingPlaces, second.slot.remainingPlaces].sort()).toEqual([0, 1]);
+  });
+
   it('001-AS7: refuses Fatou on the full slot and keeps 2 registrants', async () => {
     const { slots, openSlot, registerVolunteer } = setup();
     const slot = await openSlot.execute(lutteMorning);

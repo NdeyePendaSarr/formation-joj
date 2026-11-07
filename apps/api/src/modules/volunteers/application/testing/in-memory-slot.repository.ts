@@ -17,16 +17,17 @@ export class InMemorySlotRepository extends SlotRepository {
     this.rows.set(slot.id, clone(slot));
   }
 
-  async addRegistration(slot: Slot, registration: Registration): Promise<void> {
+  async addRegistration(slot: Slot, registration: Registration): Promise<Slot> {
     const stored = this.rows.get(slot.id);
-    if (!stored) return;
     // Comme la mise à jour conditionnelle en base : c'est l'état stocké qui décide, pas `slot`.
-    if (stored.remainingPlaces <= 0) throw slotFull(stored.id, stored.capacity);
-    this.rows.set(
-      stored.id,
-      Slot.restore({ ...snapshot(stored), registeredCount: stored.registeredCount + 1 }),
-    );
+    if (!stored || stored.remainingPlaces <= 0) throw slotFull(slot.id, slot.capacity);
+    const written = Slot.restore({
+      ...snapshot(stored),
+      registeredCount: stored.registeredCount + 1,
+    });
+    this.rows.set(written.id, written);
     this.registrations.push(cloneRegistration(registration));
+    return clone(written);
   }
 
   /** Pour les tests : tout ce qui a été enregistré. */
