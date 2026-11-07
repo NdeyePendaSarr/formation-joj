@@ -53,6 +53,14 @@ describe('Slot', () => {
     );
   });
 
+  it('001-AS3: rejects a capacity above the storable limit', () => {
+    // 2147483647 est le plus grand entier de la colonne `capacity` (integer Postgres, 32 bits).
+    expect(() => open({ capacity: 2_147_483_648 })).toThrow(
+      expect.objectContaining({ code: 'SLOT_CAPACITY_INVALID', kind: 'VALIDATION' }),
+    );
+    expect(open({ capacity: 2_147_483_647 }).capacity).toBe(2_147_483_647);
+  });
+
   const NOW = new Date('2026-11-01T08:00:00.000Z');
   const volunteer = (n: number, name: string) => ({
     id: `0199f5c2-0000-7000-8000-00000000020${n}`,

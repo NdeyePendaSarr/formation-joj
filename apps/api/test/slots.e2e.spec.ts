@@ -96,6 +96,18 @@ describe('/api/creneaux (e2e)', () => {
     expect(await slotCount()).toBe(before);
   });
 
+  it('001-AS3: rejects a capacity above the storable limit (400, not 500) and stores nothing', async () => {
+    const before = await slotCount();
+    const response = await api()
+      .post('/api/creneaux')
+      .send({ ...lutteMorning(), capacity: 2_147_483_648 })
+      .expect(400);
+
+    expect(response.body).toMatchObject({ status: 400, code: 'VALIDATION_FAILED' });
+    expect(response.body.errors).toEqual([expect.objectContaining({ path: 'capacity' })]);
+    expect(await slotCount()).toBe(before);
+  });
+
   it('001-AS4: rejects an unknown discipline (404) and stores nothing', async () => {
     const before = await slotCount();
     const response = await api()

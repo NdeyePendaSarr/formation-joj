@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
 export const SLOT_MIN_CAPACITY = 1;
+/** Limite technique, pas métier : le plus grand entier de la colonne `capacity` (integer Postgres). */
+export const SLOT_MAX_CAPACITY = 2_147_483_647;
 export const VOLUNTEER_NAME_MAX_LENGTH = 100;
 
 /** Corps de `POST /api/creneaux`. */
@@ -9,7 +11,7 @@ export const openSlotSchema = z
     disciplineId: z.uuid(),
     startsAt: z.iso.datetime({ offset: true }),
     endsAt: z.iso.datetime({ offset: true }),
-    capacity: z.int().min(SLOT_MIN_CAPACITY),
+    capacity: z.int().min(SLOT_MIN_CAPACITY).max(SLOT_MAX_CAPACITY),
   })
   .refine((input) => Date.parse(input.endsAt) > Date.parse(input.startsAt), {
     message: 'The end must follow the start',

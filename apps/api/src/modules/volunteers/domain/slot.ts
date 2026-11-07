@@ -1,4 +1,4 @@
-import { SLOT_MIN_CAPACITY } from '@joj/shared';
+import { SLOT_MAX_CAPACITY, SLOT_MIN_CAPACITY } from '@joj/shared';
 import { type NewRegistration, Registration } from './registration';
 import { slotFull, VolunteerError } from './volunteers.errors';
 
@@ -32,10 +32,14 @@ export class Slot {
         endsAt: endsAt.toISOString(),
       });
     }
-    if (!Number.isInteger(capacity) || capacity < SLOT_MIN_CAPACITY) {
+    if (
+      !Number.isInteger(capacity) ||
+      capacity < SLOT_MIN_CAPACITY ||
+      capacity > SLOT_MAX_CAPACITY
+    ) {
       throw new VolunteerError(
         'SLOT_CAPACITY_INVALID',
-        `A slot capacity is an integer of at least ${SLOT_MIN_CAPACITY}`,
+        `A slot capacity is an integer from ${SLOT_MIN_CAPACITY} to ${SLOT_MAX_CAPACITY}`,
         { capacity },
       );
     }
