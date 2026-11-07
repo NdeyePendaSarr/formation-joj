@@ -8,6 +8,8 @@ const VOLUNTEER_ERROR_KINDS = {
   SLOT_CAPACITY_INVALID: 'VALIDATION',
   /** Aucune discipline n'a l'identifiant donné à l'ouverture du créneau. */
   SLOT_DISCIPLINE_NOT_FOUND: 'NOT_FOUND',
+  /** Aucun créneau n'a cet identifiant. */
+  SLOT_NOT_FOUND: 'NOT_FOUND',
   /** Le créneau compte déjà autant d'inscrits que de places. */
   SLOT_FULL: 'CONFLICT',
   /** Nom vide, ou fait seulement d'espaces. */
@@ -28,6 +30,10 @@ export function slotDisciplineNotFound(disciplineId: string): VolunteerError {
   return new VolunteerError('SLOT_DISCIPLINE_NOT_FOUND', `No discipline with id ${disciplineId}`, {
     disciplineId,
   });
+}
+
+export function slotNotFound(id: string): VolunteerError {
+  return new VolunteerError('SLOT_NOT_FOUND', `No slot with id ${id}`, { id });
 }
 
 export function slotFull(slotId: string, capacity: number): VolunteerError {
