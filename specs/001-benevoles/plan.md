@@ -134,3 +134,12 @@ Le relecteur a relevé une capacité bien formée selon le contrat qui provoque 
 Le relecteur a prouvé que le nombre de places restantes annoncé peut être faux quand deux inscriptions réussissent en même temps. `RegisterVolunteer` (`application/use-cases/register-volunteer.ts:20-30`) renvoie le créneau lu avant l'écriture, incrémenté en mémoire, et non l'état écrit en base. `DrizzleSlotRepository.addRegistration()` (`infra/drizzle-slot.repository.ts:27-40`) ne renvoie que l'identifiant. Sur un créneau de capacité 3, deux `execute()` lancés par `Promise.all` annoncent tous les deux 2 places restantes alors qu'il en reste 1, en mémoire comme sur PGlite.
 
 - [x] T08 [001-AS6] Écrire d'abord un cas de `application/volunteers.application.spec.ts` et un cas de `infra/drizzle-slot.repository.int.spec.ts` (« 001-AS6: reports the remaining places written by the store when two registrations succeed together » : Awa et Moussa inscrits en même temps sur le créneau de capacité 2, l'une des réponses montre 1 place restante et l'autre 0), puis faire renvoyer par `addRegistration()` le créneau tel qu'écrit (`RETURNING` de l'UPDATE conditionnel en base, état stocké dans le fake en mémoire), et faire renvoyer ce créneau par `RegisterVolunteer`
+
+### Décision humaine après le passage 2
+
+La relecture finale a trouvé deux entrées acceptées par la validation et refusées par Postgres, qui renvoient une erreur 500 au lieu d'un refus 400. L'humain a décidé de les corriger dans une tâche supplémentaire, hors du compte des passages.
+
+- Une date en l'an 0000, une fois convertie en UTC (`0000-01-01T09:00:00Z`, ou `0001-01-01T00:30:00+01:00`), passe `openSlotSchema` (`packages/shared/src/volunteers.ts:12-13`) et `Slot.create()` (`domain/slot.ts:28-46`), puis Postgres la refuse (erreur 22008). Une date après l'an 9999 en UTC (`9999-12-31T23:30:00-01:00`) relève du même défaut.
+- Un nom contenant U+0000 passe `registerVolunteerSchema` (`packages/shared/src/volunteers.ts:27`) et `validName()` (`domain/registration.ts:60-72`), puis Postgres le refuse.
+
+- [ ] T09 [001-AS1, AS8] Écrire d'abord des cas de `domain/slot.spec.ts` (« 001-AS1: rejects a date outside years 1 to 9999 in UTC »), de `domain/registration.spec.ts` (« 001-AS8: rejects a name containing a NUL character ») et de `apps/api/test/slots.e2e.spec.ts` (400 et rien d'enregistré dans les deux cas), puis refuser ces entrées dans le schéma partagé et dans le domaine, avec les nouveaux codes `SLOT_DATE_OUT_OF_RANGE` et `VOLUNTEER_NAME_INVALID` (VALIDATION, 400)
