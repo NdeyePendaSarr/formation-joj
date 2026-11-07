@@ -114,7 +114,7 @@ Chaque scénario de la spec est prouvé par au moins un test, au niveau le plus 
 
 Six tâches, dans l'ordre des couches ; chacune tient dans un commit.
 
-- [ ] T01 [001-AS1, AS2, AS3] Écrire d'abord `domain/slot.spec.ts` (« 001-AS2: rejects an end that does not follow the start »), puis les schémas partagés de `packages/shared/src/volunteers.ts`, `domain/volunteers.errors.ts` et `Slot.create()` / `Slot.restore()`
+- [x] T01 [001-AS1, AS2, AS3] Écrire d'abord `domain/slot.spec.ts` (« 001-AS2: rejects an end that does not follow the start »), puis les schémas partagés de `packages/shared/src/volunteers.ts`, `domain/volunteers.errors.ts` et `Slot.create()` / `Slot.restore()`
 - [ ] T02 [001-AS5, AS6, AS7, AS8] Écrire d'abord `domain/registration.spec.ts` et les cas d'inscription de `domain/slot.spec.ts` (« 001-AS7: refuses to register on a full slot »), puis l'entité `Registration`, `Slot.register()` et `remainingPlaces`
 - [ ] T03 [001-AS1, AS4] Écrire d'abord `application/volunteers.application.spec.ts` (« 001-AS4: rejects an unknown discipline »), puis les ports `SlotRepository` et `DisciplineLookup`, leurs fakes en mémoire et `OpenSlot`
 - [ ] T04 [001-AS5, AS6, AS7, AS9] Compléter d'abord `application/volunteers.application.spec.ts` (« 001-AS6: accepts the last place and leaves 0 »), puis `RegisterVolunteer` et `addRegistration()` dans le fake en mémoire
