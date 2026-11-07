@@ -1,3 +1,4 @@
+import type { DisciplineCategory } from '@joj/shared';
 import { Discipline } from '../../domain/discipline';
 import { disciplineNameTaken } from '../../domain/disciplines.errors';
 import { DisciplineRepository } from '../discipline.repository';
@@ -20,6 +21,10 @@ export class InMemoryDisciplineRepository extends DisciplineRepository {
     return [...this.rows.values()]
       .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
       .map(clone);
+  }
+
+  async listByCategory(category: DisciplineCategory): Promise<Discipline[]> {
+    return (await this.list()).filter((discipline) => discipline.category === category);
   }
 
   async insert(discipline: Discipline): Promise<void> {

@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { mockControl } from './control';
-import { lutte, natation, UNKNOWN_ID } from './fixture';
+import { fixture, lutte, natation, UNKNOWN_ID } from './fixture';
 
 const call = (path: string, init: RequestInit = {}) =>
   fetch(`http://localhost${path}`, {
@@ -95,6 +95,30 @@ describe('mock disciplines API', () => {
       expect(await response.json()).toMatchObject({ code: 'DISCIPLINE_NOT_FOUND' });
     },
   );
+
+  it('000-AS12: lists the other disciplines of the same category, sorted by name', async () => {
+    const taekwondo = { ...lutte, id: '0199f5c2-0000-7000-8000-000000000005', name: 'Taekwondo' };
+    const judo = { ...lutte, id: '0199f5c2-0000-7000-8000-000000000006', name: 'Judo' };
+    fixture.disciplines.push(taekwondo, judo);
+
+    const similar = await call(`/api/disciplines/${lutte.id}/similaires`);
+    expect(similar.status).toBe(200);
+    expect(await similar.json()).toEqual([judo, taekwondo]);
+
+    expect(await (await call(`/api/disciplines/${natation.id}/similaires`)).json()).toEqual([]);
+  });
+
+  it('000-AS12: answers 404 DISCIPLINE_NOT_FOUND for the similar disciplines of an unknown id', async () => {
+    const response = await call(`/api/disciplines/${UNKNOWN_ID}/similaires`);
+    expect(response.status).toBe(404);
+    expect(await response.json()).toMatchObject({ code: 'DISCIPLINE_NOT_FOUND' });
+  });
+
+  it('000-AS12: rejects an id that is not a UUID with a 400 VALIDATION_FAILED problem', async () => {
+    const response = await call('/api/disciplines/pas-un-uuid/similaires');
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({ code: 'VALIDATION_FAILED' });
+  });
 });
 
 describe('mockControl', () => {

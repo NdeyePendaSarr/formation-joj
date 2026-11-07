@@ -1,5 +1,6 @@
 import {
   createDisciplineSchema,
+  disciplineIdParamsSchema,
   type DisciplineResponse,
   type ProblemDetails,
   updateDisciplineSchema,
@@ -97,6 +98,19 @@ export const handlers = [
     const id = String(params['id']);
     const found = findDiscipline(id);
     return found ? HttpResponse.json(found) : notFound(id);
+  }),
+
+  http.get('*/api/disciplines/:id/similaires', async ({ params }) => {
+    const failure = await gate('GET', '/api/disciplines/:id/similaires');
+    if (failure) return failure;
+    // Comme l'API : un id qui n'est pas un UUID est refusé avant d'être cherché.
+    const parsed = disciplineIdParamsSchema.safeParse(params);
+    if (!parsed.success) return validationFailed(parsed.error);
+    const { id } = parsed.data;
+    const found = findDiscipline(id);
+    if (!found) return notFound(id);
+    const similar = fixture.disciplines.filter((d) => d.category === found.category && d.id !== id);
+    return HttpResponse.json(similar.sort(byName));
   }),
 
   http.patch('*/api/disciplines/:id', async ({ params, request }) => {

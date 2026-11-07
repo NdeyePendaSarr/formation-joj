@@ -1,3 +1,4 @@
+import type { DisciplineCategory } from '@joj/shared';
 import type { Discipline } from '../domain/discipline';
 
 /**
@@ -9,6 +10,8 @@ export abstract class DisciplineRepository {
   abstract findByName(name: string): Promise<Discipline | null>;
   /** Triées par nom. */
   abstract list(): Promise<Discipline[]>;
+  /** Celles d'une catégorie, triées par nom. */
+  abstract listByCategory(category: DisciplineCategory): Promise<Discipline[]>;
   /** Lève DISCIPLINE_NAME_TAKEN si le nom est déjà pris (contrainte d'unicité). */
   abstract insert(discipline: Discipline): Promise<void>;
   /** Écrit le nom et la catégorie ; lève DISCIPLINE_NAME_TAKEN si le nom est déjà pris. */

@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { DisciplineCategory } from '@joj/shared';
 import { asc, eq } from 'drizzle-orm';
 import type { Database } from '../../../core/database/database';
 import { DATABASE } from '../../../core/database/database.module';
@@ -31,6 +32,15 @@ export class DrizzleDisciplineRepository extends DisciplineRepository {
 
   async list(): Promise<Discipline[]> {
     const rows = await this.db.select().from(disciplines).orderBy(asc(disciplines.name));
+    return rows.map(toDomain);
+  }
+
+  async listByCategory(category: DisciplineCategory): Promise<Discipline[]> {
+    const rows = await this.db
+      .select()
+      .from(disciplines)
+      .where(eq(disciplines.category, category))
+      .orderBy(asc(disciplines.name));
     return rows.map(toDomain);
   }
 

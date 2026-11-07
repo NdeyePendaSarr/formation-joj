@@ -9,7 +9,7 @@ Le module d'exemple du dépôt, écrit avant les ateliers : il n'a pas de PRD. L
 ## User stories
 
 - En tant que membre du comité d'organisation, je veux ajouter une discipline avec sa catégorie, afin de constituer le programme sportif.
-- En tant que membre du comité, je veux consulter, corriger et retirer une discipline, afin que la liste reste juste.
+- En tant que membre du comité, je veux consulter, corriger et retirer une discipline, et voir les autres de sa catégorie, afin que la liste reste juste et que chaque discipline soit située dans le programme.
 
 ## Scénarios d'acceptation
 
@@ -57,10 +57,13 @@ Le module d'exemple du dépôt, écrit avant les ateliers : il n'a pas de PRD. L
 
 - **Étant donné** une discipline qui n'existe pas, ou supprimée entre-temps par quelqu'un d'autre · **Quand** le membre l'ouvre, la modifie ou la supprime · **Alors** l'application dit qu'elle est introuvable.
 
+### AS12 — Disciplines similaires
+
+- **Étant donné** « Lutte » et « Judo » en sports de combat, et « Natation » en sports nautiques · **Quand** le membre demande les disciplines similaires à « Lutte » · **Alors** il obtient les autres disciplines de la même catégorie, triées par nom, sans « Lutte » elle-même (ici « Judo » seul) ; une discipline seule dans sa catégorie n'en a aucune, et une discipline inconnue est dite introuvable.
+
 ## Hors périmètre
 
-- Les comptes et les droits : tout le monde peut tout faire.
-- L'historique des modifications, et l'ajout d'une sixième catégorie depuis l'écran.
+- Les comptes et les droits (tout le monde peut tout faire), l'historique des modifications, et l'ajout d'une sixième catégorie depuis l'écran.
 
 ## Questions ouvertes
 
