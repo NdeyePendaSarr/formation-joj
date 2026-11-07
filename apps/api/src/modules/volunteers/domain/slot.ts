@@ -1,5 +1,6 @@
 import { SLOT_MIN_CAPACITY } from '@joj/shared';
-import { VolunteerError } from './volunteers.errors';
+import { type NewRegistration, Registration } from './registration';
+import { slotFull, VolunteerError } from './volunteers.errors';
 
 export interface SlotProps {
   id: string;
@@ -68,5 +69,20 @@ export class Slot {
 
   get registeredCount(): number {
     return this.props.registeredCount;
+  }
+
+  get remainingPlaces(): number {
+    return this.props.capacity - this.props.registeredCount;
+  }
+
+  /**
+   * Inscrit un bénévole s'il reste une place. Le dépôt revérifie la place au moment d'écrire :
+   * deux inscriptions simultanées peuvent lire le même créneau.
+   */
+  register(volunteer: Omit<NewRegistration, 'slotId'>): Registration {
+    const registration = Registration.create({ ...volunteer, slotId: this.props.id });
+    if (this.remainingPlaces <= 0) throw slotFull(this.props.id, this.props.capacity);
+    this.props = { ...this.props, registeredCount: this.props.registeredCount + 1 };
+    return registration;
   }
 }

@@ -17,10 +17,13 @@ export const openSlotSchema = z
   });
 export type OpenSlotInput = z.infer<typeof openSlotSchema>;
 
+/** Une seule définition d'un email bien formé, relue par le domaine de l'API. */
+export const volunteerEmailSchema = z.email();
+
 /** Corps de `POST /api/creneaux/:id/inscriptions`. */
 export const registerVolunteerSchema = z.object({
   name: z.string().trim().min(1).max(VOLUNTEER_NAME_MAX_LENGTH),
-  email: z.email(),
+  email: volunteerEmailSchema,
 });
 export type RegisterVolunteerInput = z.infer<typeof registerVolunteerSchema>;
 
@@ -43,7 +46,7 @@ export const registrationSchema = z.object({
   id: z.uuid(),
   slotId: z.uuid(),
   name: z.string(),
-  email: z.email(),
+  email: volunteerEmailSchema,
   registeredAt: z.iso.datetime(),
   remainingPlaces: z.int().nonnegative(),
 });
