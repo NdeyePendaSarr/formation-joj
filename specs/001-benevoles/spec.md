@@ -1,6 +1,6 @@
 # 001 — Bénévoles
 
-**Statut** : Validée
+**Statut** : Implémentée
 **PRD** : specs/prd-benevoles.md, TR1
 
 ## Contexte
