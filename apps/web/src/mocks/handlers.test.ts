@@ -57,6 +57,24 @@ describe('mock disciplines API', () => {
     expect(await response.json()).toMatchObject({ code: 'DISCIPLINE_NAME_TAKEN' });
   });
 
+  it('000-AS5: counts the disciplines of each of the five categories, 0 included', async () => {
+    fixture.disciplines.push({
+      ...lutte,
+      id: '0199f5c2-0000-7000-8000-000000000006',
+      name: 'Judo',
+    });
+
+    const response = await call('/api/disciplines/par-categorie');
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([
+      { category: 'athletisme', count: 0 },
+      { category: 'sports-collectifs', count: 0 },
+      { category: 'sports-de-combat', count: 2 },
+      { category: 'sports-nautiques', count: 1 },
+      { category: 'sports-de-precision', count: 0 },
+    ]);
+  });
+
   it('000-AS6: returns one discipline by id', async () => {
     const response = await call(`/api/disciplines/${lutte.id}`);
     expect(await response.json()).toEqual(lutte);

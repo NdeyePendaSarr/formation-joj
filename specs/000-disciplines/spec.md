@@ -31,7 +31,7 @@ Le module d'exemple du dépôt, écrit avant les ateliers : il n'a pas de PRD. L
 
 ### AS5 — Consulter la liste
 
-- **Étant donné** des disciplines enregistrées · **Quand** le membre ouvre la liste · **Alors** il les voit triées par nom avec leur catégorie ; une liste vide le dit, et une liste impossible à charger affiche une erreur.
+- **Étant donné** des disciplines enregistrées · **Quand** le membre ouvre la liste · **Alors** il les voit triées par nom avec leur catégorie ; une liste vide le dit, et une liste impossible à charger affiche une erreur. Il peut aussi obtenir le nombre de disciplines de chacune des cinq catégories, 0 compris.
 
 ### AS6 — Consulter une discipline
 

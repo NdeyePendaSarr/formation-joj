@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DisciplineRepository } from './application/discipline.repository';
+import { CountDisciplinesByCategory } from './application/use-cases/count-disciplines-by-category';
 import { CreateDiscipline } from './application/use-cases/create-discipline';
 import { DeleteDiscipline } from './application/use-cases/delete-discipline';
 import { GetDiscipline } from './application/use-cases/get-discipline';
@@ -20,6 +21,7 @@ import { DrizzleDisciplineRepository } from './infra/drizzle-discipline.reposito
     UpdateDiscipline,
     DeleteDiscipline,
     ListSimilarDisciplines,
+    CountDisciplinesByCategory,
   ],
 })
 export class DisciplinesModule {}

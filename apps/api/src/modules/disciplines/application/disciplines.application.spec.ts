@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryDisciplineRepository } from './testing/in-memory-discipline.repository';
+import { CountDisciplinesByCategory } from './use-cases/count-disciplines-by-category';
 import { CreateDiscipline } from './use-cases/create-discipline';
 import { DeleteDiscipline } from './use-cases/delete-discipline';
 import { GetDiscipline } from './use-cases/get-discipline';
@@ -16,6 +17,7 @@ function setup() {
     updateDiscipline: new UpdateDiscipline(disciplines),
     deleteDiscipline: new DeleteDiscipline(disciplines),
     listSimilarDisciplines: new ListSimilarDisciplines(disciplines),
+    countDisciplinesByCategory: new CountDisciplinesByCategory(disciplines),
   };
 }
 
@@ -51,6 +53,21 @@ describe('disciplines (application layer)', () => {
     }
     const names = (await listDisciplines.execute()).map((discipline) => discipline.name);
     expect(names).toEqual(['Basketball 3x3', 'Lutte', 'Natation']);
+  });
+
+  it('000-AS5: counts the disciplines of each of the five categories, 0 included', async () => {
+    const { createDiscipline, countDisciplinesByCategory } = setup();
+    await createDiscipline.execute({ name: 'Lutte', category: 'sports-de-combat' });
+    await createDiscipline.execute({ name: 'Judo', category: 'sports-de-combat' });
+    await createDiscipline.execute({ name: 'Natation', category: 'sports-nautiques' });
+
+    expect(await countDisciplinesByCategory.execute()).toEqual([
+      { category: 'athletisme', count: 0 },
+      { category: 'sports-collectifs', count: 0 },
+      { category: 'sports-de-combat', count: 2 },
+      { category: 'sports-nautiques', count: 1 },
+      { category: 'sports-de-precision', count: 0 },
+    ]);
   });
 
   it('000-AS6: gets a discipline by its id', async () => {

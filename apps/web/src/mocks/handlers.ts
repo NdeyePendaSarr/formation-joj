@@ -1,5 +1,7 @@
 import {
   createDisciplineSchema,
+  DISCIPLINE_CATEGORIES,
+  type DisciplineCountResponse,
   disciplineIdParamsSchema,
   type DisciplineResponse,
   type ProblemDetails,
@@ -90,6 +92,17 @@ export const handlers = [
     };
     fixture.disciplines.push(created);
     return HttpResponse.json(created, { status: 201 });
+  }),
+
+  // Avant `:id`, comme dans l'API : sinon « par-categorie » serait lu comme un identifiant.
+  http.get('*/api/disciplines/par-categorie', async () => {
+    const failure = await gate('GET', '/api/disciplines/par-categorie');
+    if (failure) return failure;
+    const counts: DisciplineCountResponse[] = DISCIPLINE_CATEGORIES.map((category) => ({
+      category,
+      count: fixture.disciplines.filter((d) => d.category === category).length,
+    }));
+    return HttpResponse.json(counts);
   }),
 
   http.get('*/api/disciplines/:id', async ({ params }) => {

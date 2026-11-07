@@ -42,6 +42,21 @@ describe('DrizzleDisciplineRepository (in-memory PGlite, migrations applied)', (
     expect(names).toEqual(expect.arrayContaining(['Badminton', 'Zumba']));
   });
 
+  it('000-AS5: counts the disciplines of each category in use', async () => {
+    // La base est partagée par le fichier : on compare aux nombres d'avant les insertions.
+    const before = await repository.countByCategory();
+    const collectif = (name: string) =>
+      Discipline.create({ id: randomUUID(), name, category: 'sports-collectifs', now: new Date() });
+    await repository.insert(collectif('Basketball 3x3'));
+    await repository.insert(collectif('Handball'));
+    await repository.insert(newDiscipline('Saut en longueur'));
+
+    const after = await repository.countByCategory();
+    expect(after.get('sports-collectifs')).toBe((before.get('sports-collectifs') ?? 0) + 2);
+    expect(after.get('athletisme')).toBe((before.get('athletisme') ?? 0) + 1);
+    expect(after.has('sports-de-precision')).toBe(before.has('sports-de-precision'));
+  });
+
   it('000-AS6: finds a discipline by its id', async () => {
     const discipline = newDiscipline('Judo');
     await repository.insert(discipline);

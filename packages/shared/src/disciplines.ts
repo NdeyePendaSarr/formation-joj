@@ -42,3 +42,13 @@ export const disciplineSchema = z.object({
 export type DisciplineResponse = z.infer<typeof disciplineSchema>;
 
 export const disciplineListSchema = z.array(disciplineSchema);
+
+/** Le nombre de disciplines d'une catégorie. */
+export const disciplineCountSchema = z.object({
+  category: disciplineCategorySchema,
+  count: z.int().nonnegative(),
+});
+export type DisciplineCountResponse = z.infer<typeof disciplineCountSchema>;
+
+/** Réponse de `GET /api/disciplines/par-categorie` : les cinq catégories, dans l'ordre de la liste. */
+export const disciplineCountsByCategorySchema = z.array(disciplineCountSchema);

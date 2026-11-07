@@ -2,12 +2,15 @@ import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@ne
 import { ApiTags } from '@nestjs/swagger';
 import {
   createDisciplineSchema,
+  type DisciplineCountResponse,
+  disciplineCountSchema,
   disciplineIdParamsSchema,
   type DisciplineResponse,
   disciplineSchema,
   updateDisciplineSchema,
 } from '@joj/shared';
 import { createZodDto, ZodSerializerDto } from 'nestjs-zod';
+import { CountDisciplinesByCategory } from '../application/use-cases/count-disciplines-by-category';
 import { CreateDiscipline } from '../application/use-cases/create-discipline';
 import { DeleteDiscipline } from '../application/use-cases/delete-discipline';
 import { GetDiscipline } from '../application/use-cases/get-discipline';
@@ -20,6 +23,7 @@ class CreateDisciplineDto extends createZodDto(createDisciplineSchema) {}
 class UpdateDisciplineDto extends createZodDto(updateDisciplineSchema) {}
 class DisciplineIdParamsDto extends createZodDto(disciplineIdParamsSchema) {}
 class DisciplineDto extends createZodDto(disciplineSchema) {}
+class DisciplineCountDto extends createZodDto(disciplineCountSchema) {}
 
 /** Couche fine : valider (DTO zod), appeler un cas d'usage, sérialiser. Aucune règle métier ici. */
 @ApiTags('disciplines')
@@ -32,6 +36,7 @@ export class DisciplinesController {
     private readonly updateDiscipline: UpdateDiscipline,
     private readonly deleteDiscipline: DeleteDiscipline,
     private readonly listSimilarDisciplines: ListSimilarDisciplines,
+    private readonly countDisciplinesByCategory: CountDisciplinesByCategory,
   ) {}
 
   @Get()
@@ -44,6 +49,13 @@ export class DisciplinesController {
   @ZodSerializerDto(DisciplineDto)
   async create(@Body() body: CreateDisciplineDto): Promise<DisciplineResponse> {
     return toResponse(await this.createDiscipline.execute(body));
+  }
+
+  // Déclarée avant `:id`, sinon « par-categorie » serait lu comme un identifiant (400).
+  @Get('par-categorie')
+  @ZodSerializerDto([DisciplineCountDto])
+  byCategory(): Promise<DisciplineCountResponse[]> {
+    return this.countDisciplinesByCategory.execute();
   }
 
   @Get(':id')

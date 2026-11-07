@@ -27,6 +27,14 @@ export class InMemoryDisciplineRepository extends DisciplineRepository {
     return (await this.list()).filter((discipline) => discipline.category === category);
   }
 
+  async countByCategory(): Promise<Map<DisciplineCategory, number>> {
+    const counts = new Map<DisciplineCategory, number>();
+    for (const { category } of this.rows.values()) {
+      counts.set(category, (counts.get(category) ?? 0) + 1);
+    }
+    return counts;
+  }
+
   async insert(discipline: Discipline): Promise<void> {
     this.assertNameFree(discipline);
     this.rows.set(discipline.id, clone(discipline));

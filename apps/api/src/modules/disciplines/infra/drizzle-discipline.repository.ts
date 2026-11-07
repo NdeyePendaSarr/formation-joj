@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { DisciplineCategory } from '@joj/shared';
-import { asc, eq } from 'drizzle-orm';
+import { disciplineCategorySchema, type DisciplineCategory } from '@joj/shared';
+import { asc, count, eq } from 'drizzle-orm';
 import type { Database } from '../../../core/database/database';
 import { DATABASE } from '../../../core/database/database.module';
 import { isUniqueViolation } from '../../../core/database/pg-errors';
@@ -42,6 +42,15 @@ export class DrizzleDisciplineRepository extends DisciplineRepository {
       .where(eq(disciplines.category, category))
       .orderBy(asc(disciplines.name));
     return rows.map(toDomain);
+  }
+
+  async countByCategory(): Promise<Map<DisciplineCategory, number>> {
+    const rows = await this.db
+      .select({ category: disciplines.category, count: count() })
+      .from(disciplines)
+      .groupBy(disciplines.category);
+    // Comme toDomain : une catégorie inconnue en base est un bug, on échoue tôt.
+    return new Map(rows.map((row) => [disciplineCategorySchema.parse(row.category), row.count]));
   }
 
   async insert(discipline: Discipline): Promise<void> {

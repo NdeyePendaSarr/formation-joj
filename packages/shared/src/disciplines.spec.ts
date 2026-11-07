@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { createDisciplineSchema, updateDisciplineSchema } from './disciplines.ts';
+import {
+  createDisciplineSchema,
+  disciplineCountsByCategorySchema,
+  updateDisciplineSchema,
+} from './disciplines.ts';
 
 describe('createDisciplineSchema', () => {
   it('000-AS1: accepts a name and a listed category, and trims the name', () => {
@@ -33,4 +37,22 @@ describe('updateDisciplineSchema', () => {
       expect(updateDisciplineSchema.safeParse(body).success).toBe(false);
     },
   );
+});
+
+describe('disciplineCountsByCategorySchema', () => {
+  it('000-AS5: accepts a count per category, 0 included', () => {
+    const counts = [
+      { category: 'sports-de-combat', count: 2 },
+      { category: 'athletisme', count: 0 },
+    ];
+    expect(disciplineCountsByCategorySchema.parse(counts)).toEqual(counts);
+  });
+
+  it.each([
+    { category: 'jeux', count: 1 },
+    { category: 'athletisme', count: -1 },
+    { category: 'athletisme', count: 1.5 },
+  ])('000-AS5: rejects an unknown category or a count that is not a natural number (%j)', (row) => {
+    expect(disciplineCountsByCategorySchema.safeParse([row]).success).toBe(false);
+  });
 });
