@@ -4,11 +4,12 @@ Application d'organisation des JOJ Dakar 2026 : une API NestJS (`apps/api`), un 
 
 ## Méthodologie
 
-- Toute fonctionnalité suit le cycle `/prd` → `/spec` → `/spec-plan` → `/tdd-task` → `/converge`, selon les six principes de `specs/constitution.md`.
+- Une nouvelle fonctionnalité suit le cycle `/prd` → `/spec` → `/spec-plan` → `/tdd-task` → `/converge`, selon les six principes de `specs/constitution.md`. Une petite évolution d'un module existant : un scénario ajouté à sa spec, puis TDD, sans PRD ni plan.
 - Test d'abord : un test vu en échec pour la bonne raison (`pnpm tdd:red <fichier>`), puis le code minimal.
 - `pnpm verify` avant chaque commit (lefthook le relance) ; `pnpm check` avant de conclure. Jamais de `--no-verify`.
-- Une tâche = un commit Conventional Commits qui cite la tâche et le scénario : `feat(benevoles): T03 refuse a full slot (001-AS2)`.
+- Une tâche = un commit Conventional Commits qui cite la tâche et le scénario : `feat(benevoles): T03 refuse a full slot (001-AS2)`. Sans plan, un seul commit qui cite le scénario : `feat(api): … (000-AS12)`.
 - Ordre de construction d'une fonctionnalité : `README.md`, « Ajouter une fonctionnalité ». Relecture finale par le sous-agent `relecteur`.
+- Specs : ne jamais inventer un besoin ou une justification métier, demander. Si une spec dépasse sa limite de lignes, proposer la coupe avant de l'appliquer.
 
 ## Architecture
 
