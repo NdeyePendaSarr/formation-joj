@@ -1,4 +1,4 @@
-import { SLOT_MAX_CAPACITY, SLOT_MIN_CAPACITY } from '@joj/shared';
+import { isStorableInstant, SLOT_MAX_CAPACITY, SLOT_MIN_CAPACITY } from '@joj/shared';
 import { type NewRegistration, Registration } from './registration';
 import { slotFull, VolunteerError } from './volunteers.errors';
 
@@ -26,6 +26,15 @@ export class Slot {
 
   // Le domaine revérifie ses règles : il ne fait pas confiance à la validation HTTP.
   static create({ id, disciplineId, startsAt, endsAt, capacity }: NewSlot): Slot {
+    for (const date of [startsAt, endsAt]) {
+      if (!isStorableInstant(date.getTime())) {
+        throw new VolunteerError(
+          'SLOT_DATE_OUT_OF_RANGE',
+          'A slot date falls between years 1 and 9999 in UTC',
+          { date: date.toISOString() },
+        );
+      }
+    }
     if (endsAt.getTime() <= startsAt.getTime()) {
       throw new VolunteerError('SLOT_END_NOT_AFTER_START', 'A slot must end after it starts', {
         startsAt: startsAt.toISOString(),

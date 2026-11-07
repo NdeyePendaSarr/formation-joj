@@ -34,6 +34,12 @@ describe('Registration', () => {
     expect(register('x'.repeat(100), 'awa@example.sn').name).toHaveLength(100);
   });
 
+  it('001-AS8: rejects a name containing a NUL character', () => {
+    expect(() => register('Awa\u0000', 'awa@example.sn')).toThrow(
+      expect.objectContaining({ code: 'VOLUNTEER_NAME_INVALID', kind: 'VALIDATION' }),
+    );
+  });
+
   it.each(['', 'awa', 'awa@', '@example.sn', 'awa example.sn'])(
     '001-AS8: rejects a malformed email (%j)',
     (email) => {

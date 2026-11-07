@@ -1,4 +1,4 @@
-import { VOLUNTEER_NAME_MAX_LENGTH, volunteerEmailSchema } from '@joj/shared';
+import { hasNulCharacter, VOLUNTEER_NAME_MAX_LENGTH, volunteerEmailSchema } from '@joj/shared';
 import { VolunteerError } from './volunteers.errors';
 
 export interface RegistrationProps {
@@ -67,6 +67,9 @@ function validName(name: string): string {
       'VOLUNTEER_NAME_TOO_LONG',
       `A volunteer name has at most ${VOLUNTEER_NAME_MAX_LENGTH} characters`,
     );
+  }
+  if (hasNulCharacter(trimmed)) {
+    throw new VolunteerError('VOLUNTEER_NAME_INVALID', 'A volunteer name has no NUL character');
   }
   return trimmed;
 }

@@ -53,6 +53,24 @@ describe('Slot', () => {
     );
   });
 
+  it.each([
+    ['year 0', '0000-01-01T09:00:00Z', '0000-01-01T12:00:00Z'],
+    ['year 0 once in UTC', '0001-01-01T00:30:00+01:00', '0001-01-01T12:00:00Z'],
+    ['after year 9999 once in UTC', '9999-12-31T20:00:00Z', '9999-12-31T23:30:00-01:00'],
+  ])('001-AS1: rejects a date outside years 1 to 9999 in UTC (%s)', (_label, startsAt, endsAt) => {
+    expect(() => open({ startsAt: new Date(startsAt), endsAt: new Date(endsAt) })).toThrow(
+      expect.objectContaining({ code: 'SLOT_DATE_OUT_OF_RANGE', kind: 'VALIDATION' }),
+    );
+  });
+
+  it('001-AS1: accepts the first and last storable instants', () => {
+    const slot = open({
+      startsAt: new Date('0001-01-01T00:00:00.000Z'),
+      endsAt: new Date('9999-12-31T23:59:59.999Z'),
+    });
+    expect(slot.registeredCount).toBe(0);
+  });
+
   it('001-AS3: rejects a capacity above the storable limit', () => {
     // 2147483647 est le plus grand entier de la colonne `capacity` (integer Postgres, 32 bits).
     expect(() => open({ capacity: 2_147_483_648 })).toThrow(

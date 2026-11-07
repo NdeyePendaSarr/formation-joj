@@ -108,6 +108,37 @@ describe('/api/creneaux (e2e)', () => {
     expect(await slotCount()).toBe(before);
   });
 
+  it.each([
+    // Seul le début est hors limites : une seule erreur attendue, sur `startsAt`.
+    ['year 0', '0000-12-31T09:00:00Z', '0001-01-01T12:00:00Z', 'startsAt'],
+    ['after year 9999 once in UTC', '9999-12-31T20:00:00Z', '9999-12-31T23:30:00-01:00', 'endsAt'],
+  ])(
+    '001-AS1: rejects a date %s (400, not 500) and stores nothing',
+    async (_label, startsAt, endsAt, path) => {
+      const before = await slotCount();
+      const response = await api()
+        .post('/api/creneaux')
+        .send({ ...lutteMorning(), startsAt, endsAt })
+        .expect(400);
+
+      expect(response.body).toMatchObject({ status: 400, code: 'VALIDATION_FAILED' });
+      expect(response.body.errors).toEqual([expect.objectContaining({ path })]);
+      expect(await slotCount()).toBe(before);
+    },
+  );
+
+  it('001-AS8: rejects a name containing a NUL character (400, not 500)', async () => {
+    const slot = await openLutteSlot();
+    const response = await api()
+      .post(`/api/creneaux/${slot.id}/inscriptions`)
+      .send({ name: 'Awa\u0000', email: 'awa@example.sn' })
+      .expect(400);
+
+    expect(response.body).toMatchObject({ status: 400, code: 'VALIDATION_FAILED' });
+    expect(response.body.errors).toEqual([expect.objectContaining({ path: 'name' })]);
+    expect(await registrantCount(slot.id)).toBe(0);
+  });
+
   it('001-AS4: rejects an unknown discipline (404) and stores nothing', async () => {
     const before = await slotCount();
     const response = await api()

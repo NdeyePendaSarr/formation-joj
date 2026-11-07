@@ -5,12 +5,35 @@ export const SLOT_MIN_CAPACITY = 1;
 export const SLOT_MAX_CAPACITY = 2_147_483_647;
 export const VOLUNTEER_NAME_MAX_LENGTH = 100;
 
+/**
+ * Limites techniques, pas métier : un instant des années 1 à 9999 en UTC. Postgres refuse l'an 0,
+ * et au-delà de 9999 `toISOString()` écrit une année à six chiffres qu'il ne relit pas.
+ */
+export const SLOT_EARLIEST_INSTANT = Date.parse('0001-01-01T00:00:00.000Z');
+export const SLOT_LATEST_INSTANT = Date.parse('9999-12-31T23:59:59.999Z');
+
+/** Vrai si l'instant (en millisecondes) peut être stocké. Relu par le domaine de l'API. */
+export function isStorableInstant(time: number): boolean {
+  return time >= SLOT_EARLIEST_INSTANT && time <= SLOT_LATEST_INSTANT;
+}
+
+/** Postgres refuse le caractère U+0000 dans un texte. Relu par le domaine de l'API. */
+export function hasNulCharacter(text: string): boolean {
+  return text.includes('\u0000');
+}
+
+const slotInstantSchema = z.iso
+  .datetime({ offset: true })
+  .refine((value) => isStorableInstant(Date.parse(value)), {
+    message: 'The date must fall between years 1 and 9999 in UTC',
+  });
+
 /** Corps de `POST /api/creneaux`. */
 export const openSlotSchema = z
   .object({
     disciplineId: z.uuid(),
-    startsAt: z.iso.datetime({ offset: true }),
-    endsAt: z.iso.datetime({ offset: true }),
+    startsAt: slotInstantSchema,
+    endsAt: slotInstantSchema,
     capacity: z.int().min(SLOT_MIN_CAPACITY).max(SLOT_MAX_CAPACITY),
   })
   .refine((input) => Date.parse(input.endsAt) > Date.parse(input.startsAt), {
@@ -24,7 +47,12 @@ export const volunteerEmailSchema = z.email();
 
 /** Corps de `POST /api/creneaux/:id/inscriptions`. */
 export const registerVolunteerSchema = z.object({
-  name: z.string().trim().min(1).max(VOLUNTEER_NAME_MAX_LENGTH),
+  name: z
+    .string()
+    .trim()
+    .min(1)
+    .max(VOLUNTEER_NAME_MAX_LENGTH)
+    .refine((name) => !hasNulCharacter(name), { message: 'The name contains a NUL character' }),
   email: volunteerEmailSchema,
 });
 export type RegisterVolunteerInput = z.infer<typeof registerVolunteerSchema>;
