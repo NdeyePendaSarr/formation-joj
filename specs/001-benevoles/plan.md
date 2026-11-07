@@ -120,3 +120,11 @@ Six tâches, dans l'ordre des couches ; chacune tient dans un commit.
 - [x] T04 [001-AS5, AS6, AS7, AS9] Compléter d'abord `application/volunteers.application.spec.ts` (« 001-AS6: accepts the last place and leaves 0 »), puis `RegisterVolunteer` et `addRegistration()` dans le fake en mémoire
 - [x] T05 [001-AS1, AS4, AS7] Écrire d'abord `infra/drizzle-slot.repository.int.spec.ts` et `infra/drizzle-discipline-lookup.int.spec.ts` (« 001-AS7: never registers beyond capacity when the slot filled meanwhile », « 001-AS7: keeps the place when the registration insert fails »), puis `infra/volunteers.schema.ts`, la migration générée par `pnpm db:generate`, `infra/slot.mapper.ts`, `DrizzleSlotRepository` (incrément et insertion dans une seule transaction) et `DrizzleDisciplineLookup`
 - [x] T06 [001-AS1, AS2, AS3, AS4, AS5, AS6, AS7, AS8, AS9] Écrire d'abord `apps/api/test/slots.e2e.spec.ts` (« 001-AS6: shows 0 remaining places after Moussa », « 001-AS7: rejects Fatou on a full slot (409 SLOT_FULL) »), puis `http/slots.controller.ts`, `volunteers.module.ts` et son ajout dans `app.module.ts`
+
+## 7. Corrections
+
+### Passage 1
+
+Le relecteur a relevé une capacité bien formée selon le contrat qui provoque une erreur 500. Le schéma partagé (`packages/shared/src/volunteers.ts:12`) et `Slot.create()` acceptent toute capacité entière, alors que la colonne `capacity` est un `integer` Postgres sur 32 bits. Une capacité de 2147483648 passe donc la validation, puis l'insertion échoue (Postgres 22003, `drizzle-slot.repository.ts:24`) et l'appelant reçoit une erreur 500 au lieu d'un refus.
+
+- [ ] T07 [001-AS3] Écrire d'abord un cas de `domain/slot.spec.ts` (« 001-AS3: rejects a capacity above the storable limit ») et un cas de `apps/api/test/slots.e2e.spec.ts` (une capacité de 2147483648 renvoie 400 et rien n'est enregistré), puis borner la capacité à la limite de la colonne par une constante partagée `SLOT_MAX_CAPACITY` (2147483647), dans `openSlotSchema` et dans `Slot.create()` (`SLOT_CAPACITY_INVALID`)
