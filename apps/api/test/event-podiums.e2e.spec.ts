@@ -113,20 +113,31 @@ describe('/api/epreuves/:id/podiums (e2e)', () => {
   });
 
   it.each([
-    ['an empty name', { ...AWA_PODIUM, journalistName: '' }],
-    ['a name of spaces', { ...AWA_PODIUM, journalistName: '   ' }],
-    ['a name of 101 characters', { ...AWA_PODIUM, journalistName: 'x'.repeat(101) }],
-    ['a missing bib', { journalistName: 'Awa', gold: 214, silver: 108 }],
-    ['a bib of 0', { ...AWA_PODIUM, bronze: 0 }],
-    ['a bib above the storable limit', { ...AWA_PODIUM, bronze: 2_147_483_648 }],
-    ['a bib that is not an integer', { ...AWA_PODIUM, bronze: 3.5 }],
-    ['a bib at two places', { ...AWA_PODIUM, bronze: 214 }],
-  ])('002-AS7: rejects %s (400 VALIDATION_FAILED) and publishes nothing', async (_label, body) => {
-    const response = await post(girls100mId, body).expect(400);
+    ['an empty name', { ...AWA_PODIUM, journalistName: '' }, 'journalistName'],
+    ['a name of spaces', { ...AWA_PODIUM, journalistName: '   ' }, 'journalistName'],
+    [
+      'a name of 101 characters',
+      { ...AWA_PODIUM, journalistName: 'x'.repeat(101) },
+      'journalistName',
+    ],
+    ['a missing bib', { journalistName: 'Awa', gold: 214, silver: 108 }, 'bronze'],
+    ['a bib of 0', { ...AWA_PODIUM, bronze: 0 }, 'bronze'],
+    ['a bib above the storable limit', { ...AWA_PODIUM, bronze: 2_147_483_648 }, 'bronze'],
+    ['a bib that is not an integer', { ...AWA_PODIUM, bronze: 3.5 }, 'bronze'],
+    ['a bib at two places', { ...AWA_PODIUM, bronze: 214 }, 'bronze'],
+  ])(
+    '002-AS7: rejects %s (400 VALIDATION_FAILED), says which field is at fault and publishes nothing',
+    async (_label, body, field) => {
+      const response = await post(girls100mId, body).expect(400);
 
-    expect(response.body).toMatchObject({ status: 400, code: 'VALIDATION_FAILED' });
-    expect(await listPosts(girls100mId)).toEqual([]);
-  });
+      expect(response.body).toMatchObject({ status: 400, code: 'VALIDATION_FAILED' });
+      // « La réponse dit pourquoi » : une seule erreur, sur le champ en faute, avec un message.
+      expect(response.body.errors).toEqual([
+        expect.objectContaining({ path: field, message: expect.any(String) }),
+      ]);
+      expect(await listPosts(girls100mId)).toEqual([]);
+    },
+  );
 
   it('002-AS7: rejects a malformed event id (400 VALIDATION_FAILED)', async () => {
     const response = await post('not-a-uuid', AWA_PODIUM).expect(400);
