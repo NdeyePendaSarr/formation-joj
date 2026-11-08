@@ -1,6 +1,6 @@
 # 002 — Podiums
 
-**Statut** : Validée
+**Statut** : Implémentée
 **PRD** : specs/prd-podiums.md, TR1
 
 ## Contexte
