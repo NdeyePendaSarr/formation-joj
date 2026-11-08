@@ -1,0 +1,341 @@
+{
+  "id": "49bc79d2-1dd7-447f-849b-a40cc7ec621b",
+  "prevId": "ed1f3ca6-1fe8-4e15-9491-6336465ea506",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.disciplines": {
+      "name": "disciplines",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "disciplines_name_key": {
+          "name": "disciplines_name_key",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.events": {
+      "name": "events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "official_gold_bib": {
+          "name": "official_gold_bib",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "official_silver_bib": {
+          "name": "official_silver_bib",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "official_bronze_bib": {
+          "name": "official_bronze_bib",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "events_official_result_check": {
+          "name": "events_official_result_check",
+          "value": "(\"events\".\"official_gold_bib\" IS NULL AND \"events\".\"official_silver_bib\" IS NULL AND \"events\".\"official_bronze_bib\" IS NULL)\n        OR (\"events\".\"official_gold_bib\" IS NOT NULL AND \"events\".\"official_silver_bib\" IS NOT NULL AND \"events\".\"official_bronze_bib\" IS NOT NULL\n          AND \"events\".\"official_gold_bib\" <> \"events\".\"official_silver_bib\"\n          AND \"events\".\"official_gold_bib\" <> \"events\".\"official_bronze_bib\"\n          AND \"events\".\"official_silver_bib\" <> \"events\".\"official_bronze_bib\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.podium_posts": {
+      "name": "podium_posts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "seq": {
+          "name": "seq",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "podium_posts_seq_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "event_id": {
+          "name": "event_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "journalist_name": {
+          "name": "journalist_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gold_bib": {
+          "name": "gold_bib",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "silver_bib": {
+          "name": "silver_bib",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bronze_bib": {
+          "name": "bronze_bib",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "posted_at": {
+          "name": "posted_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "podium_posts_event_id_events_id_fk": {
+          "name": "podium_posts_event_id_events_id_fk",
+          "tableFrom": "podium_posts",
+          "tableTo": "events",
+          "columnsFrom": [
+            "event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "podium_posts_distinct_bibs_check": {
+          "name": "podium_posts_distinct_bibs_check",
+          "value": "\"podium_posts\".\"gold_bib\" <> \"podium_posts\".\"silver_bib\" AND \"podium_posts\".\"gold_bib\" <> \"podium_posts\".\"bronze_bib\" AND \"podium_posts\".\"silver_bib\" <> \"podium_posts\".\"bronze_bib\""
+        },
+        "podium_posts_status_check": {
+          "name": "podium_posts_status_check",
+          "value": "\"podium_posts\".\"status\" = 'VALIDE'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.registrations": {
+      "name": "registrations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "slot_id": {
+          "name": "slot_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registered_at": {
+          "name": "registered_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "registrations_slot_id_slots_id_fk": {
+          "name": "registrations_slot_id_slots_id_fk",
+          "tableFrom": "registrations",
+          "tableTo": "slots",
+          "columnsFrom": [
+            "slot_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.slots": {
+      "name": "slots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "discipline_id": {
+          "name": "discipline_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "starts_at": {
+          "name": "starts_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ends_at": {
+          "name": "ends_at",
+          "type": "timestamp (3) with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capacity": {
+          "name": "capacity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registered_count": {
+          "name": "registered_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "slots_period_check": {
+          "name": "slots_period_check",
+          "value": "\"slots\".\"ends_at\" > \"slots\".\"starts_at\""
+        },
+        "slots_capacity_check": {
+          "name": "slots_capacity_check",
+          "value": "\"slots\".\"capacity\" >= 1"
+        },
+        "slots_registered_count_check": {
+          "name": "slots_registered_count_check",
+          "value": "\"slots\".\"registered_count\" BETWEEN 0 AND \"slots\".\"capacity\""
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

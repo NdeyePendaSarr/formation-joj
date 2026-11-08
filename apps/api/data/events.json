@@ -1,0 +1,16 @@
+[
+  {
+    "id": "0199f5c3-0000-7000-8000-000000000001",
+    "name": "100 m filles",
+    "official_gold_bib": 214,
+    "official_silver_bib": 108,
+    "official_bronze_bib": 331
+  },
+  {
+    "id": "0199f5c3-0000-7000-8000-000000000002",
+    "name": "200 m garçons",
+    "official_gold_bib": null,
+    "official_silver_bib": null,
+    "official_bronze_bib": null
+  }
+]
