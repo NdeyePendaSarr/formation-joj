@@ -114,3 +114,11 @@ Quatre tâches, dans l'ordre des couches ; chacune tient dans un commit.
 - [x] T02 [002-AS1, AS2, AS3, AS4, AS5] Écrire d'abord `application/podiums.application.spec.ts` (« 002-AS5: rejects an unknown event »), puis les ports `SportEventRepository` et `PodiumPostRepository`, leurs implémentations en mémoire, `PostPodium` et `ListEventPosts`
 - [x] T03 [002-AS1, AS4, AS6] Écrire d'abord `infra/drizzle-sport-event.repository.int.spec.ts`, `infra/drizzle-podium-post.repository.int.spec.ts` et `infra/events-seed.int.spec.ts` (« 002-AS4: seeds at least one event without an official result », « 002-AS6: lists posts in publication order »), puis `infra/podiums.schema.ts`, la migration générée par `pnpm db:generate`, `apps/api/data/events.json`, les mappers et les deux repositories Drizzle
 - [x] T04 [002-AS1, AS2, AS3, AS4, AS5, AS6, AS7] Écrire d'abord `apps/api/test/event-podiums.e2e.spec.ts` (« 002-AS3: rejects a contradicting podium (409 PODIUM_CONTRADICTS_OFFICIAL) »), puis `http/event-podiums.controller.ts`, `podiums.module.ts` et son ajout dans `app.module.ts`
+
+## 7. Corrections
+
+### Passage 1
+
+Le relecteur a relevé que le « Alors » d'AS7, « la réponse dit pourquoi », n'est vérifié par aucun test. Le test e2e d'AS7 (`apps/api/test/event-podiums.e2e.spec.ts:124-129`) vérifie le statut 400, le code `VALIDATION_FAILED` et la consultation vide, mais pas le champ `errors` que `ProblemDetailsFilter` renvoie (`apps/api/src/core/errors/problem-details.filter.ts:62-65`). Les codes du domaine n'atteignent pas l'appelant HTTP, puisque Zod refuse d'abord. Le module Disciplines le vérifie (`apps/api/test/disciplines.e2e.spec.ts:37`).
+
+- [ ] T05 [002-AS7] Compléter d'abord chaque cas AS7 de `apps/api/test/event-podiums.e2e.spec.ts` (« 002-AS7: rejects … and says which field is at fault ») par une assertion sur `response.body.errors` qui désigne le champ en faute : `journalistName` pour un nom vide, d'espaces ou de 101 caractères, `bronze` pour un dossard manquant, de 0, trop grand ou non entier, et `bronze` pour un même dossard à deux places (le `path` du `refine` de `packages/shared/src/podiums.ts`), puis corriger le schéma partagé si un `path` manque ou est faux
